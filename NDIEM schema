@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
-           targetNamespace="http://finalNedm/1.0"
-           xmlns:ndem="http://finalNedm/1.0"
+           targetNamespace="http://finalNdiem/1.0"
+           xmlns:ndem="http://finalNdiem/1.0"
            elementFormDefault="qualified">
 
   <!-- ROOT ELEMENT -->
-  <xs:element name="NDEMMessage" type="ndem:NDEMMessageType"/>
+  <xs:element name="NDIEMMessage" type="ndem:NDIEMMessageType"/>
 
-  <xs:complexType name="NDEMMessageType">
+  <xs:complexType name="NDIEMMessageType">
     <xs:sequence>
       <xs:element name="messageID" type="xs:string"/>
       <xs:element name="timestamp" type="xs:dateTime"/>
