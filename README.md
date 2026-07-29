@@ -34,7 +34,7 @@ The repository contains the XML schema, message translation modules, validation 
 │   └── ablation_study_ndiem.py       # full evaluation notebook (reproduces all results)
     └── ndiem_transformer.py          # protocol adapters, XML build, validation
     └── run_ablation_study.py         # ablation evaluation (clean + faulted)
-    └── run_latency.py  
+    └── run_latency_study.py  
 ├── results/
 │   └── ablation_results figure.py        # saved metric outputs
 └── README.md
