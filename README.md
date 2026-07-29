@@ -19,7 +19,7 @@ The repository contains the XML schema, message translation modules, validation 
 ---
 
 ## Repository Contents
-
+```
 ├── data/
 │   ├── crazyflie_raw_1000.json      # 1000 CRTP records (orientation + acceleration)
 │   ├── hexacopter_raw_995.json      # 995 MAVLink messages (482 telemetry-bearing)
@@ -38,7 +38,7 @@ The repository contains the XML schema, message translation modules, validation 
 ├── results/
 │   └── ablation_results.json        # saved metric outputs
 └── README.md
-
+```
 ## Software Environment
 
 The prototype implementation and experimental evaluation reported in the paper were conducted using the following software environment.
