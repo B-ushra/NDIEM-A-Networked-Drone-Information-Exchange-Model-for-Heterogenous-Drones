@@ -1,0 +1,128 @@
+from pymavlink import mavutil
+import json
+import time
+
+# =====================================================
+# CONFIGURATION
+# =====================================================
+
+COM_PORT = "COM3"      # Change if needed
+BAUD_RATE = 57600
+TARGET_MESSAGES = 1000
+
+# =====================================================
+# CONNECT
+# =====================================================
+
+print("=" * 60)
+print("HEXACOPTER RAW TELEMETRY CAPTURE")
+print("=" * 60)
+
+print(f"\nConnecting to {COM_PORT} @ {BAUD_RATE} baud...")
+
+master = mavutil.mavlink_connection(
+    COM_PORT,
+    baud=BAUD_RATE
+)
+
+print("Waiting heartbeat...")
+master.wait_heartbeat()
+
+print("\nConnected!")
+print(f"System ID    : {master.target_system}")
+print(f"Component ID : {master.target_component}")
+
+# =====================================================
+# DATASET
+# =====================================================
+
+dataset = []
+
+print(f"\nCollecting {TARGET_MESSAGES} MAVLink messages...\n")
+
+while len(dataset) < TARGET_MESSAGES:
+
+    msg = master.recv_match(
+        blocking=True,
+        timeout=5
+    )
+
+    if msg is None:
+        continue
+
+    try:
+
+        msg_dict = msg.to_dict()
+
+        record = {
+            "capture_time": time.time(),
+            "message_type": msg.get_type(),
+            "telemetry": msg_dict
+        }
+
+        dataset.append(record)
+
+        print(f"\n[{len(dataset)}/{TARGET_MESSAGES}] {msg.get_type()}")
+
+        # Display full raw telemetry values
+        print(
+            json.dumps(
+                msg_dict,
+                indent=4,
+                default=str
+            )
+        )
+
+    except Exception as e:
+        print(f"Error: {e}")
+
+# =====================================================
+# SAVE JSON
+# =====================================================
+
+json_file = "hexacopter_raw_telemetry_1000.json"
+
+with open(
+    json_file,
+    "w",
+    encoding="utf-8"
+) as f:
+
+    json.dump(
+        dataset,
+        f,
+        indent=4,
+        default=str
+    )
+
+print("\n" + "=" * 60)
+print("CAPTURE COMPLETE")
+print("=" * 60)
+print(f"Messages captured : {len(dataset)}")
+print(f"Saved file        : {json_file}")
+
+# =====================================================
+# MESSAGE STATISTICS
+# =====================================================
+
+stats = {}
+
+for item in dataset:
+
+    msg_type = item["message_type"]
+
+    stats[msg_type] = stats.get(msg_type, 0) + 1
+
+print("\nMessage Counts:")
+print("-" * 40)
+
+for msg_type, count in sorted(
+    stats.items(),
+    key=lambda x: x[1],
+    reverse=True
+):
+    print(f"{msg_type:<30} {count}")
+
+master.close()
+
+print("\nConnection closed.")
