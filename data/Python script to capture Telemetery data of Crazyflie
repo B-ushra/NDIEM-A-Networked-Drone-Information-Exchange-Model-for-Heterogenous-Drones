@@ -1,0 +1,61 @@
+import time
+import json
+
+import cflib.crtp
+from cflib.crazyflie import Crazyflie
+from cflib.crazyflie.log import LogConfig
+from cflib.crazyflie.syncCrazyflie import SyncCrazyflie
+
+URI = "usb://0"
+
+TARGET_RECORDS = 1000
+
+dataset = []
+
+def log_callback(timestamp, data, logconf):
+    global dataset
+
+    record = {
+        "timestamp": timestamp,
+        "message_type": "CRAZYFLIE_TELEMETRY",
+        "telemetry": data
+    }
+
+    dataset.append(record)
+
+    print(f"[{len(dataset)}/{TARGET_RECORDS}] {data}")
+
+cflib.crtp.init_drivers()
+
+with SyncCrazyflie(URI, cf=Crazyflie(rw_cache="./cache")) as scf:
+
+    logconf = LogConfig(name="Telemetry", period_in_ms=100)
+
+    logconf.add_variable("stabilizer.roll", "float")
+    logconf.add_variable("stabilizer.pitch", "float")
+    logconf.add_variable("stabilizer.yaw", "float")
+
+    logconf.add_variable("acc.x", "float")
+    logconf.add_variable("acc.y", "float")
+    logconf.add_variable("acc.z", "float")
+
+    scf.cf.log.add_config(logconf)
+
+    logconf.data_received_cb.add_callback(log_callback)
+
+    print("Collecting 1000 telemetry records...")
+    logconf.start()
+
+    while len(dataset) < TARGET_RECORDS:
+        time.sleep(0.1)
+
+    logconf.stop()
+
+with open("crazyflie_raw_1000.json", "w") as f:
+    json.dump(dataset, f, indent=2)
+
+print("\n====================================")
+print("Capture Complete")
+print("Records Collected:", len(dataset))
+print("Saved: crazyflie_raw_1000.json")
+print("====================================")
