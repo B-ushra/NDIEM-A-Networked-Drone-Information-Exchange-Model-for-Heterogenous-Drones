@@ -1,0 +1,109 @@
+"""
+tello_capture_djitellopy.py
+====================================================================
+Captures raw telemetry from a Tello EDU using the djitellopy library.
+
+djitellopy manages the UDP socket setup, port binding and background
+state-listener thread internally, which avoids the manual socket
+problems that can prevent the state stream from being received.
+
+SETUP
+  pip install djitellopy
+
+  1. Power on the Tello EDU.
+  2. Connect this computer's WiFi to TELLO-XXXXXX.
+  3. Disable other network adapters (ethernet) if both are active.
+  4. Close the Tello app and any other script holding the connection.
+
+  python tello_capture_djitellopy.py --records 1000
+
+OUTPUT
+  tello_raw_1000.json   same record structure as the Crazyflie and
+                        MAVLink captures
+"""
+
+import json
+import time
+import argparse
+
+from djitellopy import Tello
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--records", type=int, default=1000)
+    ap.add_argument("--rate", type=float, default=10.0,
+                    help="target sampling rate in Hz")
+    ap.add_argument("--out", default="tello_raw_1000.json")
+    args = ap.parse_args()
+
+    interval = 1.0 / args.rate
+
+    print("=" * 60)
+    print("TELLO EDU RAW TELEMETRY CAPTURE (djitellopy)")
+    print("=" * 60)
+
+    tello = Tello()
+
+    print("\nConnecting...")
+    tello.connect()                     # raises if the drone does not respond
+    print(f"Connected. Battery: {tello.get_battery()}%")
+
+    dataset = []
+    print(f"\nCollecting {args.records} state records at ~{args.rate} Hz.")
+    print("Rotate the drone by hand through roll, pitch and yaw "
+          "while this runs.\n")
+
+    last = 0.0
+    while len(dataset) < args.records:
+        now = time.time()
+        if now - last < interval:
+            time.sleep(0.005)
+            continue
+        last = now
+
+        state = tello.get_current_state()
+        if not state:
+            continue
+
+        dataset.append({
+            "capture_time": now,
+            "message_type": "TELLO_STATE",
+            "telemetry": dict(state),
+        })
+
+        print(f"[{len(dataset)}/{args.records}] {json.dumps(state)}")             # if len(dataset) % 50 == 0 or len(dataset) == 1:
+                     # print(f"[{len(dataset)}/{args.records}] {json.dumps(state)}")
+
+                   
+
+    tello.end()
+
+    with open(args.out, "w", encoding="utf-8") as f:
+        json.dump(dataset, f, indent=2)
+
+    duration = dataset[-1]["capture_time"] - dataset[0]["capture_time"]
+    print("\n" + "=" * 60)
+    print("CAPTURE COMPLETE")
+    print("=" * 60)
+    print(f"Records captured : {len(dataset)}")
+    print(f"Duration         : {duration:.1f} s")
+    if duration > 0:
+        print(f"Sampling rate    : {len(dataset)/duration:.1f} Hz")
+    print(f"Saved file       : {args.out}")
+
+    fields = sorted(dataset[0]["telemetry"].keys())
+    print(f"\nFields per record ({len(fields)}):")
+    for k in fields:
+        print(f"  {k}")
+
+    print("\nRange over capture (evidences manual repositioning):")
+    for k in ("roll", "pitch", "yaw", "h", "bat"):
+        vals = [d["telemetry"].get(k) for d in dataset
+                if isinstance(d["telemetry"].get(k), (int, float))]
+        if vals:
+            print(f"  {k:<6} {min(vals)} .. {max(vals)}")
+
+
+if __name__ == "__main__":
+    main()
