@@ -26,17 +26,17 @@ The repository contains the XML schema, message translation modules, validation 
 │   └── tello_raw_1000.json          # 1000 Tello SDK state records
 ├── schema/
 │   └── drone.xsd                    # NDIEM XML Schema definition
-├── src/
-│   ├── ndiem_transformer.py         # protocol adapters, XML build, validation
-│   ├── run_ablation_study.py        # ablation evaluation (clean + faulted)
-│   └── capture/
+├── src/  
 │       ├── crazyflie_capture.py     # cflib CRTP capture
 │       ├── hexacopter_capture.py    # pymavlink capture
 │       └── tello_capture.py         # Tello SDK UDP capture
-├── notebooks/
-│   └── ndiem_evaluation.ipynb       # full evaluation notebook (reproduces all results)
+├── ndiem model validation/
+│   └── ablation_study_ndiem.py       # full evaluation notebook (reproduces all results)
+    └── ndiem_transformer.py          # protocol adapters, XML build, validation
+    └── run_ablation_study.py         # ablation evaluation (clean + faulted)
+    └── run_latency.py  
 ├── results/
-│   └── ablation_results.json        # saved metric outputs
+│   └── ablation_results figure.py        # saved metric outputs
 └── README.md
 ```
 ## Software Environment
@@ -174,4 +174,4 @@ Researchers are encouraged to cite this repository version when reproducing or e
 
 The exact software environment, implementation source code, XML schema definitions, and experimental artifacts used in the study are publicly available through this repository.
 
-The prototype was implemented in Python 3.13.1 on Microsoft Windows 11, while the conceptual information model was designed using Eclipse Papyrus 2025-06 (Version 7.1.0).
+The prototype was implemented in Python 3.13.3 on Microsoft Windows 11, while the conceptual information model was designed using Eclipse Papyrus 2025-06 (Version 7.1.0).
