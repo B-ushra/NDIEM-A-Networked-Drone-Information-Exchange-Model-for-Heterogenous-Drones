@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://finalNdiem/1.0"
+           xmlns:ndiem="http://finalNdiem/1.0"
+           elementFormDefault="qualified">
+
+  <xs:element name="NDIEMMessage" type="ndiem:NDIEMMessageType"/>
+
+  <xs:complexType name="NDIEMMessageType">
+    <xs:sequence>
+      <xs:element name="messageID" type="xs:string"/>
+      <xs:element name="timestamp" type="xs:dateTime"/>
+      <xs:element name="Header" type="ndiem:HeaderType"/>
+      <xs:element name="UavIdentificationData" type="ndiem:UavIdentificationDataType"/>
+      <xs:element name="UavCommandAndControlData" type="ndiem:UavCommandAndControlDataType" minOccurs="0"/>
+      <xs:element name="UavTelemetryData" type="ndiem:UavTelemetryDataType" minOccurs="0"/>
+      <xs:element name="UavSensorData" type="ndiem:UavSensorDataType" minOccurs="0"/>
+      <xs:element name="UavMissionData" type="ndiem:UavMissionDataType" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="HeaderType">
+    <xs:sequence>
+      <xs:element name="senderID" type="xs:string"/>
+      <xs:element name="receiverID" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="UavIdentificationDataType">
+    <xs:sequence>
+      <xs:element name="uavID" type="xs:string"/>
+      <xs:element name="uavManufacturer" type="xs:string"/>
+      <xs:element name="uavModel" type="xs:string"/>
+      <xs:element name="uavType" type="xs:string"/>
+      <xs:element name="firmwareVersion" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="UavCommandAndControlDataType">
+    <xs:sequence>
+      <xs:element name="commandType" type="xs:string"/>
+      <xs:element name="commandStatus" type="xs:string"/>
+      <xs:element name="commandID" type="xs:string" minOccurs="0"/>
+      <xs:element name="issueTime" type="xs:dateTime" minOccurs="0"/>
+      <xs:element name="TargetLocation" type="ndiem:TargetLocationType" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="TargetLocationType">
+    <xs:sequence>
+      <xs:element name="latitude" type="xs:double"/>
+      <xs:element name="longitude" type="xs:double"/>
+      <xs:element name="altitude" type="xs:double"/>
+    </xs:sequence>
+    <xs:attribute name="uom" type="xs:string" fixed="WGS84"/>
+  </xs:complexType>
+
+  <xs:complexType name="UavTelemetryDataType">
+    <xs:sequence>
+      <xs:element name="telemetryTimestamp" type="xs:dateTime"/>
+      <xs:element name="flightDuration" type="xs:int" minOccurs="0"/>
+      <xs:element name="status" type="xs:string"/>
+      <xs:element name="UavBattery" type="ndiem:UavBatteryType" minOccurs="0"/>
+      <xs:element name="UavOrientation" type="ndiem:UavOrientationType" minOccurs="0"/>
+      <xs:element name="UavVelocity" type="ndiem:UavVelocityType" minOccurs="0"/>
+      <xs:element name="UavPosition" type="ndiem:UavPositionType" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="UavBatteryType">
+    <xs:sequence>
+      <xs:element name="chargeValue" type="xs:decimal"/>
+      <xs:element name="chargePercent" type="xs:int"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="UavOrientationType">
+    <xs:sequence>
+      <xs:element name="pitch" type="xs:double"/>
+      <xs:element name="yaw" type="xs:double"/>
+      <xs:element name="roll" type="xs:double"/>
+    </xs:sequence>
+    <xs:attribute name="unit" type="xs:string" fixed="radians"/>
+  </xs:complexType>
+
+  <xs:complexType name="UavVelocityType">
+    <xs:sequence>
+      <xs:element name="vx" type="xs:double"/>
+      <xs:element name="vy" type="xs:double"/>
+      <xs:element name="vz" type="xs:double"/>
+    </xs:sequence>
+    <xs:attribute name="unit" type="xs:string" fixed="m/s"/>
+  </xs:complexType>
+
+  <xs:complexType name="UavPositionType">
+    <xs:sequence>
+      <xs:element name="lat" type="xs:double"/>
+      <xs:element name="lon" type="xs:double"/>
+      <xs:element name="alt" type="xs:double"/>
+    </xs:sequence>
+    <xs:attribute name="frame" type="xs:string" default="WGS84"/>
+  </xs:complexType>
+
+  <xs:complexType name="UavSensorDataType">
+    <xs:sequence>
+      <xs:element name="sensorType" type="xs:string"/>
+      <xs:element name="sensorID" type="xs:string" minOccurs="0"/>
+      <xs:element name="Observation" type="ndiem:UavObservationType" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="UavObservationType">
+    <xs:sequence>
+      <xs:element name="observationID" type="xs:int"/>
+      <xs:element name="observationTime" type="xs:dateTime"/>
+      <xs:element name="mediaUrl" type="xs:string" minOccurs="0"/>
+      <xs:element name="observationLocation" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="UavMissionDataType">
+    <xs:sequence>
+      <xs:element name="missionType" type="xs:string"/>
+      <xs:element name="missionArea" type="xs:string" minOccurs="0"/>
+      <xs:element name="MissionConstraints" type="ndiem:MissionConstraintsType" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="MissionConstraintsType">
+    <xs:sequence>
+      <xs:element name="controlMeasures" type="xs:string"/>
+      <xs:element name="minAltitude" type="xs:double" minOccurs="0"/>
+      <xs:element name="maxAltitude" type="xs:double" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+</xs:schema>
